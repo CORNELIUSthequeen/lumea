@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>LUMEA | Orders</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0b0b0b;
+            color: #f5f0e8;
+            font-family: Georgia, "Times New Roman", serif;
+            min-height: 100vh;
+        }
+
+        header {
+            padding: 25px 7%;
+            border-bottom: 1px solid #c9a45c;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: #c9a45c;
+            font-size: 28px;
+            letter-spacing: 7px;
+        }
+
+        .back {
+            color: #aaa;
+            text-decoration: none;
+        }
+
+        .back:hover {
+            color: #c9a45c;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 50px auto;
+            padding: 0 25px;
+        }
+
+        h1 {
+            color: #c9a45c;
+            letter-spacing: 4px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #aaa;
+            margin-bottom: 35px;
+        }
+
+        .order {
+            background: #151515;
+            border: 1px solid rgba(201, 164, 92, 0.4);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(201, 164, 92, 0.2);
+        }
+
+        .order-header h2 {
+            color: #c9a45c;
+            margin-bottom: 7px;
+        }
+
+        .date {
+            color: #888;
+            font-size: 14px;
+        }
+
+        .status {
+            padding: 8px 12px;
+            border: 1px solid #c9a45c;
+            color: #c9a45c;
+            background: #0b0b0b;
+            font-family: inherit;
+        }
+
+        .customer {
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .customer strong {
+            color: #c9a45c;
+        }
+
+        .items {
+            margin-bottom: 20px;
+        }
+
+        .items h3,
+        .note h3 {
+            color: #c9a45c;
+            margin-bottom: 10px;
+        }
+
+        .item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(201, 164, 92, 0.1);
+        }
+
+        .note {
+            margin-bottom: 20px;
+        }
+
+        .note p {
+            color: #bbb;
+        }
+
+        .total {
+            color: #c9a45c;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .status-select {
+            padding: 10px;
+            background: #0b0b0b;
+            color: #f5f0e8;
+            border: 1px solid #c9a45c;
+            font-family: inherit;
+        }
+
+        .message {
+            color: #c9a45c;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .order-header {
+                flex-direction: column;
+            }
+
+            .item {
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+
+    <div class="logo">LUMEA</div>
+
+    <a href="admin-dashboard.html" class="back">
+        ← Dashboard
+    </a>
+
+</header>
+
+<main class="container">
+
+    <h1>ORDERS</h1>
+
+    <p class="subtitle">
+        View and manage customer orders.
+    </p>
+
+    <div id="message" class="message"></div>
+
+    <div id="orders"></div>
+
+</main>
+
+<script type="module">
+
+import { createClient } from
+"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+const SUPABASE_URL =
+    "https://jkkyovlduvxvmwyptkva.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_HTXhXhQFZzH6s31rkFWWPw_YcUSAKQw";
+
+const supabase = createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+);
+
+async function loadOrders() {
+
+    const { data: { session } } =
+        await supabase.auth.getSession();
+
+    if (!session) {
+        window.location.href = "admin.html";
+        return;
+    }
+
+    const { data: orders, error } =
+        await supabase
+            .from("orders")
+            .select("*")
+            .order("created_at", { ascending: false });
+
+    if (error) {
+
+        console.error(error);
+
+        document.getElementById("message").textContent =
+            "Could not load orders.";
+
+        return;
+    }
+
+    const container =
+        document.getElementById("orders");
+
+    container.innerHTML = "";
+
+    if (!orders || orders.length === 0) {
+
+        container.innerHTML =
+            "<p>No orders yet.</p>";
+
+        return;
+    }
+
+    orders.forEach(order => {
+
+        const div =
+            document.createElement("div");
+
+        div.className = "order";
+
+        let itemsHTML = "";
+
+        if (Array.isArray(order.items)) {
+
+            order.items.forEach(item => {
+
+                const itemTotal =
+                    Number(item.price) * Number(item.quantity);
+
+                itemsHTML += `
+                    <div class="item">
+                        <span>
+                            ${item.name} × ${item.quantity}
+                        </span>
+
+                        <span>
+                            ₦${itemTotal.toLocaleString()}
+                        </span>
+                    </div>
+                `;
+            });
+        }
+
+        const date =
+            new Date(order.created_at).toLocaleString();
+
+        div.innerHTML = `
+
+            <div class="order-header">
+
+                <div>
+
+                    <h2>
+                        Order #${order.id}
+                    </h2>
+
+                    <div class="date">
+                        ${date}
+                    </div>
+
+                </div>
+
+                <select
+                    class="status-select"
+                    onchange="updateStatus(${order.id}, this.value)"
+                >
+
+                    <option value="Pending"
+                        ${order.status === "Pending" ? "selected" : ""}>
+                        Pending
+                    </option>
+
+                    <option value="Confirmed"
+                        ${order.status === "Confirmed" ? "selected" : ""}>
+                        Confirmed
+                    </option>
+
+                    <option value="Delivered"
+                        ${order.status === "Delivered" ? "selected" : ""}>
+                        Delivered
+                    </option>
+
+                </select>
+
+            </div>
+
+           <div class="customer">
+
+    <strong>Customer</strong><br>
+
+    ${order.customer_name}<br>
+
+    ${order.customer_phone}<br>
+
+    ${order.delivery_address}
+
+    <br><br>
+
+    <button
+        onclick="messageCustomer('${order.customer_phone}')">
+        MESSAGE CUSTOMER ON WHATSAPP
+    </button>
+
+</div>
+
+            <div class="items">
+
+                <h3>ORDER ITEMS</h3>
+
+                ${itemsHTML}
+
+            </div>
+
+            ${
+                order.order_note
+                ?
+                `
+                <div class="note">
+
+                    <h3>ORDER NOTE</h3>
+
+                    <p>${order.order_note}</p>
+
+                </div>
+                `
+                :
+                ""
+            }
+
+            <div class="total">
+
+                TOTAL:
+                ₦${Number(order.total).toLocaleString()}
+
+            </div>
+            <button
+    class="delete-order-button"
+    onclick="deleteOrder(${order.id})">
+    DELETE ORDER
+</button>
+        `;
+
+        container.appendChild(div);
+    });
+}
+
+window.updateStatus = async function(id, status) {
+
+    const { error } =
+        await supabase
+            .from("orders")
+            .update({
+                status: status
+            })
+            .eq("id", id);
+
+    if (error) {
+
+        console.error(error);
+
+        alert("Could not update order status.");
+
+        return;
+    }
+
+    alert("Order status updated.");
+
+};
+
+async function deleteOrder(id) {
+
+    const confirmed = confirm(
+        "Are you sure you want to delete this order?"
+    );
+
+    if (!confirmed) return;
+
+    const { error } = await supabase
+        .from("orders")
+        .delete()
+        .eq("id", id);
+
+    if (error) {
+
+        console.error(error);
+
+        alert("Could not delete order.");
+
+        return;
+    }
+
+    alert("Order deleted successfully!");
+
+    loadOrders();
+}
+
+window.deleteOrder = deleteOrder;
+window.messageCustomer = function(phone) {
+
+    let cleanPhone = phone.replace(/\D/g, "");
+
+    if (cleanPhone.startsWith("0")) {
+        cleanPhone = "234" + cleanPhone.substring(1);
+    }
+
+    const whatsappURL =
+        "https://wa.me/" +
+        cleanPhone;
+
+    window.open(whatsappURL, "_blank");
+};
+
+loadOrders();
+
+</script>
+
+</body>
+</html>

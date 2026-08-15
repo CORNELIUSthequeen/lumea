@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>LUMEA | Wear Your Light</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Georgia, "Times New Roman", serif;
+            background-color: #0b0b0b;
+            color: #f5f0e8;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 7%;
+            border-bottom: 1px solid #c9a45c;
+        }
+
+        .logo {
+            color: #c9a45c;
+            font-size: 30px;
+            letter-spacing: 8px;
+        }
+
+        nav a {
+            color: #f5f0e8;
+            text-decoration: none;
+            margin-left: 30px;
+            font-size: 15px;
+        }
+
+        nav a:hover {
+            color: #c9a45c;
+        }
+
+        .hero {
+            min-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(
+                rgba(11, 11, 11, 0.7),
+                rgba(90, 15, 27, 0.5)
+            );
+        }
+
+        .hero h1 {
+            color: #c9a45c;
+            font-size: clamp(60px, 12vw, 130px);
+            letter-spacing: 20px;
+            margin-left: 20px;
+        }
+
+        .hero p {
+            margin-top: 20px;
+            letter-spacing: 6px;
+            font-size: 16px;
+        }
+
+        .hero button {
+            margin-top: 40px;
+            padding: 15px 35px;
+            background-color: #5a0f1b;
+            color: #f5f0e8;
+            border: 1px solid #c9a45c;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 15px;
+            letter-spacing: 2px;
+        }
+
+        .hero button:hover {
+            background-color: #c9a45c;
+            color: #0b0b0b;
+        }
+
+        .section {
+            padding: 80px 7%;
+            text-align: center;
+        }
+
+        .section h2 {
+            color: #c9a45c;
+            font-size: 35px;
+            margin-bottom: 20px;
+            letter-spacing: 4px;
+        }
+
+        .section p {
+            color: #ddd;
+            max-width: 600px;
+            margin: auto;
+            line-height: 1.8;
+        }
+        .section-intro{
+            margin-bottom: 45px !important;
+        }
+        .products {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 850px;
+    margin: 0 auto;
+}
+
+.product-card {
+    background-color: #151515;
+    border: 1px solid rgba(201, 164, 92, 0.4);
+    padding: 10px;
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-8px);
+}
+
+.product-image {
+    width: 160px;
+    height: 160px;
+    background-color: #242124;
+    overflow: hidden;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    border: 2px solid #c9a45c;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-card h3 {
+    color: #f5f0e8;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.price {
+    color: #c9a45c !important;
+    font-size: 18px;
+    margin-bottom: 20px !important;
+}
+
+.product-card button {
+    padding: 12px 25px;
+    background-color: #5a0f1b;
+    color: #f5f0e8;
+    border: 1px solid #c9a45c;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.product-card button:hover {
+    background-color: #c9a45c;
+    color: #0b0b0b;
+}
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            border-top: 1px solid #c9a45c;
+            color: #c9a45c;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">LUMEA</div>
+
+        <nav>
+            <a href="#">Home</a>
+            <a href="#">Shop</a>
+            <a href="#">About</a>
+            <a href="#">♡</a>
+            <a href="cart.html">🛒</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1>LUMEA</h1>
+
+        <p>WEAR YOUR LIGHT.</p>
+
+        <button>SHOP NOW</button>
+    </section>
+
+    <section class="section">
+    <h2>NEW ARRIVALS</h2>
+
+    <p class="section-intro">
+        Discover our latest pieces, thoughtfully selected to
+        bring elegance to every moment.
+    </p>
+    <div class="category-filters">
+    <button class="category-filter active" data-category="all">
+        All
+    </button>
+
+    <button class="category-filter" data-category="Necklaces">
+        Necklaces
+    </button>
+
+    <button class="category-filter" data-category="Bracelets">
+        Bracelets
+    </button>
+
+    <button class="category-filter" data-category="Earrings">
+        Earrings
+    </button>
+
+    <button class="category-filter" data-category="Rings">
+        Rings
+    </button>
+
+    <button class="category-filter" data-category="Other">
+        Other
+    </button>
+</div>
+
+   <div class="products" id="products-container">
+</div>
+</section>
+
+    <footer>
+        LUMEA · WEAR YOUR LIGHT.
+    </footer>
+<script src="cart.js"></script>
+<script type="module">
+
+    import { createClient } from
+    "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+    const SUPABASE_URL =
+        "https://jkkyovlduvxvmwyptkva.supabase.co";
+
+    const SUPABASE_PUBLISHABLE_KEY =
+        "sb_publishable_HTXhXhQFZzH6s31rkFWWPw_YcUSAKQw";
+
+    const supabase = createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+    );
+
+    async function loadStoreProducts() {
+
+        const { data, error } =
+            await supabase
+                .from("products")
+                .select("*")
+                .order("id", { ascending: true });
+
+        if (error) {
+            console.error("Could not load products:", error);
+            return;
+        }
+
+        const container =
+            document.getElementById("products-container");
+
+        container.innerHTML = "";
+
+        data.forEach(product => {
+
+            const card =
+                document.createElement("div");
+
+            card.className = "product-card";
+
+      card.innerHTML = `
+    <div class="product-image">
+        <img
+            src="${product.image}"
+            alt="${product.name}"
+        >
+    </div>
+
+    <h3>${product.name}</h3>
+
+    <p class="category">
+        ${product.category || ""}
+    </p>
+    <p class="stock-status ${product.in_stock ? "in-stock" : "sold-out"}">
+    ${product.in_stock ? "In Stock" : "Sold Out"}
+</p>
+
+    <p class="description">
+        ${product.description || ""}
+    </p>
+
+    <p class="price">
+        ₦${Number(product.price).toLocaleString()}
+    </p>
+
+    <button
+    ${product.in_stock ? "" : "disabled"}
+    onclick="addToCart('${product.name.replace(/'/g, "\\'")}', ${product.price})">
+    ${product.in_stock ? "Add to Cart" : "Sold Out"}
+</button>
+`;
+            container.appendChild(card);
+        });
+    }
+
+    loadStoreProducts();
+document.querySelectorAll(".category-filter").forEach(button => {
+
+    button.addEventListener("click", () => {
+
+        const selectedCategory =
+            button.dataset.category;
+
+        document
+            .querySelectorAll(".category-filter")
+            .forEach(btn => {
+                btn.classList.remove("active");
+            });
+
+        button.classList.add("active");
+
+        document
+            .querySelectorAll(".product-card")
+            .forEach(card => {
+
+                const category =
+                    card.querySelector(".category")
+                        ?.textContent
+                        .trim();
+
+                if (
+                    selectedCategory === "all" ||
+                    category === selectedCategory
+                ) {
+                    card.style.display = "";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+    });
+});
+</script>
+</body>
+</html>

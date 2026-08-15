@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>LUMEA | Admin Dashboard</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0b0b0b;
+            color: #f5f0e8;
+            font-family: Georgia, "Times New Roman", serif;
+            min-height: 100vh;
+        }
+
+        header {
+            padding: 25px 7%;
+            border-bottom: 1px solid #c9a45c;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: #c9a45c;
+            font-size: 28px;
+            letter-spacing: 7px;
+        }
+
+        .admin-label {
+            color: #aaa;
+            letter-spacing: 2px;
+        }
+
+        .dashboard {
+            max-width: 1100px;
+            margin: 50px auto;
+            padding: 0 25px;
+        }
+
+        h1 {
+            color: #c9a45c;
+            letter-spacing: 4px;
+            margin-bottom: 10px;
+        }
+
+        .welcome {
+            color: #aaa;
+            margin-bottom: 40px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+        }
+
+        .dashboard-card {
+            background: #151515;
+            border: 1px solid rgba(201, 164, 92, 0.4);
+            padding: 30px;
+            min-height: 180px;
+        }
+
+        .dashboard-card h2 {
+            color: #c9a45c;
+            margin-bottom: 15px;
+        }
+
+        .dashboard-card p {
+            color: #aaa;
+            line-height: 1.6;
+        }
+
+        button {
+            margin-top: 25px;
+            padding: 13px 22px;
+            background: #5a0f1b;
+            color: #f5f0e8;
+            border: 1px solid #c9a45c;
+            cursor: pointer;
+            font-family: inherit;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            background: #c9a45c;
+            color: #0b0b0b;
+        }
+
+        .logout {
+            margin-top: 45px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">LUMEA</div>
+
+        <div class="admin-label">
+            ADMIN
+        </div>
+    </header>
+
+    <main class="dashboard">
+
+        <h1>ADMIN DASHBOARD</h1>
+
+        <p class="welcome">
+            Welcome to your LUMEA store management area.
+        </p>
+
+        <div class="dashboard-grid">
+
+            <div class="dashboard-card">
+
+                <h2>Products</h2>
+
+                <p>
+                    Add, edit and remove products from your store.
+                </p>
+
+                <button onclick="window.location.href='manage-products.html'">
+    MANAGE PRODUCTS
+</button>
+
+            </div>
+
+            <div class="dashboard-card">
+
+                <h2>Orders</h2>
+
+                <p>
+                    View and manage customer orders.
+                </p>
+                <div id="pending-orders-count">
+    Checking orders...
+</div>
+<div id="confirmed-orders-count">
+    Checking orders...
+</div>
+
+<div id="delivered-orders-count">
+    Checking orders...
+</div>
+                <button onclick="window.location.href='admin-orders.html'">
+    VIEW ORDERS
+</button>
+
+            </div>
+
+            <div class="dashboard-card">
+
+                <h2>Store</h2>
+
+                <p>
+                    Open your LUMEA storefront.
+                </p>
+
+                <button onclick="window.location.href='index.html'">
+                    VIEW STORE
+                </button>
+
+            </div>
+
+        </div>
+
+        <button class="logout" id="logout">
+            LOG OUT
+        </button>
+
+    </main>
+
+    <script type="module">
+
+        import { createClient } from
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+        const SUPABASE_URL =
+            "https://jkkyovlduvxvmwyptkva.supabase.co";
+
+        const SUPABASE_PUBLISHABLE_KEY =
+            "sb_publishable_HTXhXhQFZzH6s31rkFWWPw_YcUSAKQw";
+
+        const supabase = createClient(
+            SUPABASE_URL,
+            SUPABASE_PUBLISHABLE_KEY
+        );
+
+        async function checkLogin() {
+
+            const { data: { session } } =
+                await supabase.auth.getSession();
+
+            if (!session) {
+                window.location.href = "admin.html";
+            }
+        }
+
+        document.getElementById("logout").addEventListener(
+            "click",
+            async function() {
+
+                await supabase.auth.signOut();
+
+                window.location.href = "admin.html";
+
+            }
+        );
+
+        checkLogin();
+async function loadOrderCounts() {
+
+    const statuses = [
+        {
+            status: "Pending",
+            element: "pending-orders-count"
+        },
+        {
+            status: "Confirmed",
+            element: "confirmed-orders-count"
+        },
+        {
+            status: "Delivered",
+            element: "delivered-orders-count"
+        }
+    ];
+
+    for (const item of statuses) {
+
+        const { count, error } = await supabase
+            .from("orders")
+            .select("*", {
+                count: "exact",
+                head: true
+            })
+            .eq("status", item.status);
+
+        if (error) {
+
+            console.error(
+                "Could not count " + item.status + " orders:",
+                error
+            );
+
+            continue;
+        }
+
+        document.getElementById(item.element).textContent =
+            count + " " + item.status +
+            (count === 1 ? " Order" : " Orders");
+    }
+}
+
+loadOrderCounts();
+    </script>
+
+</body>
+</html>

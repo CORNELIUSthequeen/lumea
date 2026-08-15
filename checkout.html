@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>LUMEA | Checkout</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Georgia, "Times New Roman", serif;
+            background: #0b0b0b;
+            color: #f5f0e8;
+            min-height: 100vh;
+        }
+
+        header {
+            padding: 25px 7%;
+            border-bottom: 1px solid #c9a45c;
+            text-align: center;
+        }
+
+        .logo {
+            color: #c9a45c;
+            font-size: 30px;
+            letter-spacing: 8px;
+        }
+
+        .checkout-container {
+            max-width: 800px;
+            margin: 60px auto;
+            padding: 0 25px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #c9a45c;
+            letter-spacing: 5px;
+            margin-bottom: 45px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #c9a45c;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 14px;
+            background: #151515;
+            border: 1px solid rgba(201, 164, 92, 0.5);
+            color: #f5f0e8;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #c9a45c;
+        }
+
+        .order-summary {
+            margin: 35px 0;
+            padding: 25px;
+            background: #151515;
+            border: 1px solid rgba(201, 164, 92, 0.4);
+        }
+
+        .order-summary h2 {
+            color: #c9a45c;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        .order-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(201, 164, 92, 0.15);
+        }
+
+        .order-total {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            font-size: 21px;
+            color: #c9a45c;
+        }
+
+        .whatsapp-button {
+            width: 100%;
+            padding: 17px;
+            background: #5a0f1b;
+            color: #f5f0e8;
+            border: 1px solid #c9a45c;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 16px;
+            letter-spacing: 2px;
+        }
+
+        .whatsapp-button:hover {
+            background: #c9a45c;
+            color: #0b0b0b;
+        }
+
+        .back {
+            display: block;
+            text-align: center;
+            margin-top: 25px;
+            color: #aaa;
+            text-decoration: none;
+        }
+
+        .back:hover {
+            color: #c9a45c;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">LUMEA</div>
+    </header>
+
+    <main class="checkout-container">
+
+        <h1>CHECKOUT</h1>
+
+        <form id="checkout-form">
+
+            <div class="form-group">
+                <label for="customer-name">Full Name</label>
+                <input
+                    type="text"
+                    id="customer-name"
+                    required
+                    placeholder="Your full name"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="customer-phone">Phone Number</label>
+                <input
+                    type="tel"
+                    id="customer-phone"
+                    required
+                    placeholder="08012345678"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="delivery-address">Delivery Address</label>
+                <textarea
+                    id="delivery-address"
+                    required
+                    placeholder="Enter your full delivery address"
+                ></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="order-note">Order Note (Optional)</label>
+                <textarea
+                    id="order-note"
+                    placeholder="Any special instructions?"
+                ></textarea>
+            </div>
+
+            <div class="order-summary">
+                <h2>YOUR ORDER</h2>
+
+                <div id="order-items"></div>
+
+                <div class="order-total">
+                    <span>Total</span>
+                    <span>₦<span id="order-total">0</span></span>
+                </div>
+            </div>
+
+            <button type="submit" class="whatsapp-button">
+                SEND ORDER VIA WHATSAPP
+            </button>
+
+        </form>
+
+        <a href="cart.html" class="back">← Back to Cart</a>
+
+    </main>
+
+    <script src="cart.js"></script>
+
+    <script type="module">
+        import { createClient } from
+"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+const SUPABASE_URL =
+    "https://jkkyovlduvxvmwyptkva.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_HTXhXhQFZzH6s31rkFWWPw_YcUSAKQw";
+
+const supabase = createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+);
+        const orderItems = document.getElementById("order-items");
+        const orderTotal = document.getElementById("order-total");
+
+        function displayOrder() {
+
+            orderItems.innerHTML = "";
+
+            let total = 0;
+
+            cart.forEach(item => {
+
+                const itemTotal = item.price * item.quantity;
+
+                total += itemTotal;
+
+                const div = document.createElement("div");
+
+                div.className = "order-line";
+
+                div.innerHTML = `
+                    <span>
+                        ${item.name} × ${item.quantity}
+                    </span>
+
+                    <span>
+                        ₦${itemTotal.toLocaleString()}
+                    </span>
+                `;
+
+                orderItems.appendChild(div);
+            });
+
+            orderTotal.textContent = total.toLocaleString();
+        }
+
+        document.getElementById("checkout-form").addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+            if (cart.length === 0) {
+                alert("Your cart is empty.");
+                return;
+            }
+
+            const name = document.getElementById("customer-name").value;
+            const phone = document.getElementById("customer-phone").value;
+            const address = document.getElementById("delivery-address").value;
+            const note = document.getElementById("order-note").value;
+
+            let message = "✨ *LUMEA ORDER* ✨\n\n";
+
+            message += "*Customer Details*\n";
+            message += "Name: " + name + "\n";
+            message += "Phone: " + phone + "\n";
+            message += "Delivery Address: " + address + "\n\n";
+
+            message += "*ORDER DETAILS*\n";
+
+            let total = 0;
+
+            cart.forEach(item => {
+
+                const itemTotal = item.price * item.quantity;
+
+                total += itemTotal;
+
+                message += "• " + item.name;
+                message += " × " + item.quantity;
+                message += " — ₦" + itemTotal.toLocaleString();
+                message += "\n";
+            });
+
+            message += "\n*TOTAL: ₦" + total.toLocaleString() + "*\n";
+            const { error: orderError } = await supabase
+    .from("orders")
+    .insert([
+        {
+            customer_name: name,
+            customer_phone: phone,
+            delivery_address: address,
+            order_note: note,
+            items: cart,
+            total: total,
+            status: "Pending"
+        }
+    ]);
+
+if (orderError) {
+    console.error("Order save error:", orderError);
+    alert("Could not save your order. Please try again.");
+    return;
+}
+
+            if (note.trim() !== "") {
+                message += "\n*Order Note:* " + note;
+            }
+
+            /*
+             * We will add your real LUMEA WhatsApp number here
+             * once you are ready.
+             */
+
+            const whatsappNumber = "234702543555";
+
+            const whatsappURL =
+                "https://wa.me/" +
+                whatsappNumber +
+                "?text=" +
+                encodeURIComponent(message);
+
+            window.open(whatsappURL, "_blank");
+        });
+
+        displayOrder();
+    </script>
+
+</body>
+</html>

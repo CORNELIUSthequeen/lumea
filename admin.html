@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>LUMEA | Admin Login</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0b0b0b;
+            color: #f5f0e8;
+            font-family: Georgia, "Times New Roman", serif;
+        }
+
+        .login-box {
+            width: 90%;
+            max-width: 420px;
+            padding: 40px;
+            background: #151515;
+            border: 1px solid #c9a45c;
+        }
+
+        .logo {
+            text-align: center;
+            color: #c9a45c;
+            font-size: 30px;
+            letter-spacing: 8px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 35px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #c9a45c;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            background: #0b0b0b;
+            border: 1px solid rgba(201, 164, 92, 0.5);
+            color: #f5f0e8;
+            font-size: 16px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #c9a45c;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 10px;
+            background: #5a0f1b;
+            color: #f5f0e8;
+            border: 1px solid #c9a45c;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 16px;
+            letter-spacing: 2px;
+        }
+
+        button:hover {
+            background: #c9a45c;
+            color: #0b0b0b;
+        }
+
+        #message {
+            margin-top: 20px;
+            text-align: center;
+            color: #c9a45c;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-box">
+
+        <div class="logo">LUMEA</div>
+
+        <p class="subtitle">ADMIN LOGIN</p>
+
+        <form id="login-form">
+
+            <div class="form-group">
+                <label for="email">Email</label>
+
+                <input
+                    type="email"
+                    id="email"
+                    required
+                    placeholder="Admin email"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+
+                <input
+                    type="password"
+                    id="password"
+                    required
+                    placeholder="Admin password"
+                >
+            </div>
+
+            <button type="submit">
+                LOGIN
+            </button>
+
+        </form>
+
+        <div id="message"></div>
+
+    </div>
+
+    <script type="module">
+
+        import { createClient } from
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+        const SUPABASE_URL =
+            "https://jkkyovlduvxvmwyptkva.supabase.co";
+
+        const SUPABASE_PUBLISHABLE_KEY =
+            "sb_publishable_HTXhXhQFZzH6s31rkFWWPw_YcUSAKQw";
+
+        const supabase = createClient(
+            SUPABASE_URL,
+            SUPABASE_PUBLISHABLE_KEY
+        );
+
+        const loginForm =
+            document.getElementById("login-form");
+
+        const message =
+            document.getElementById("message");
+
+        loginForm.addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+            const email =
+                document.getElementById("email").value;
+
+            const password =
+                document.getElementById("password").value;
+
+            message.textContent = "Logging in...";
+
+            const { data, error } =
+                await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+            if (error) {
+
+                message.textContent =
+                    "Login failed. Check your email and password.";
+
+                console.error(error);
+
+                return;
+            }
+
+            message.textContent =
+                "Login successful!";
+
+            // We will create admin-dashboard.html next.
+            window.location.href =
+                "admin-dashboard.html";
+
+        });
+
+    </script>
+
+</body>
+</html>

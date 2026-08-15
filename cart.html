@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>LUMEA | Your Cart</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Georgia, "Times New Roman", serif;
+            background-color: #0b0b0b;
+            color: #f5f0e8;
+            min-height: 100vh;
+        }
+
+        header {
+            padding: 25px 7%;
+            border-bottom: 1px solid #c9a45c;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: #c9a45c;
+            font-size: 30px;
+            letter-spacing: 8px;
+        }
+
+        header a {
+            color: #f5f0e8;
+            text-decoration: none;
+        }
+
+        header a:hover {
+            color: #c9a45c;
+        }
+
+        .cart-section {
+            max-width: 900px;
+            margin: 70px auto;
+            padding: 0 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #c9a45c;
+            letter-spacing: 5px;
+            margin-bottom: 50px;
+        }
+
+        #cart-items {
+            border-top: 1px solid rgba(201, 164, 92, 0.4);
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 0;
+            border-bottom: 1px solid rgba(201, 164, 92, 0.3);
+        }
+
+        .cart-item h3 {
+            margin-bottom: 8px;
+        }
+
+        .cart-item p {
+            color: #c9a45c;
+        }
+
+        .quantity {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .quantity button {
+            background: #5a0f1b;
+            color: white;
+            border: 1px solid #c9a45c;
+            padding: 6px 12px;
+            cursor: pointer;
+        }
+
+        .total {
+            text-align: right;
+            margin-top: 35px;
+            font-size: 24px;
+            color: #c9a45c;
+        }
+
+        .checkout {
+            display: block;
+            margin: 30px 0 0 auto;
+            padding: 15px 30px;
+            background: #5a0f1b;
+            color: #f5f0e8;
+            border: 1px solid #c9a45c;
+            cursor: pointer;
+            font-family: inherit;
+            letter-spacing: 2px;
+        }
+
+        .checkout:hover {
+            background: #c9a45c;
+            color: #0b0b0b;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 50px;
+            color: #aaa;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">LUMEA</div>
+        <a href="index.html">← Continue Shopping</a>
+    </header>
+
+    <section class="cart-section">
+
+        <h1>YOUR CART</h1>
+
+        <div id="cart-items"></div>
+
+        <div class="total">
+            Total: ₦<span id="cart-total">0</span>
+        </div>
+
+        <a href="checkout.html" class="checkout">
+    CHECKOUT
+</a>
+
+    </section>
+
+    <script src="cart.js"></script>
+
+    <script>
+        const cartItems = document.getElementById("cart-items");
+        const cartTotal = document.getElementById("cart-total");
+
+        function displayCart() {
+
+            cartItems.innerHTML = "";
+
+            if (cart.length === 0) {
+                cartItems.innerHTML =
+                    '<p class="empty">Your cart is currently empty.</p>';
+
+                cartTotal.textContent = "0";
+                return;
+            }
+
+            let total = 0;
+
+            cart.forEach((item, index) => {
+
+                total += item.price * item.quantity;
+
+                const div = document.createElement("div");
+
+                div.className = "cart-item";
+
+                div.innerHTML = `
+                    <div>
+                        <h3>${item.name}</h3>
+                        <p>₦${item.price.toLocaleString()}</p>
+                    </div>
+
+                    <div class="quantity">
+                        <button onclick="decreaseQuantity(${index})">−</button>
+
+                        <span>${item.quantity}</span>
+
+                        <button onclick="increaseQuantity(${index})">+</button>
+                    </div>
+                `;
+
+                cartItems.appendChild(div);
+            });
+
+            cartTotal.textContent = total.toLocaleString();
+        }
+
+      
+        function increaseQuantity(index) {
+    cart[index].quantity++;
+    saveCart();
+    displayCart();
+}
+
+function decreaseQuantity(index) {
+
+    if (cart[index].quantity > 1) {
+        cart[index].quantity--;
+    } else {
+        cart.splice(index, 1);
+    }
+
+    saveCart();
+    displayCart();
+}
+
+        displayCart();
+    </script>
+
+</body>
+</html>
