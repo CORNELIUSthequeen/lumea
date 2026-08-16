@@ -146,6 +146,29 @@
             margin-bottom: 30px;
         }
 
+        .variation-box {
+            background: #151515;
+            border: 1px solid rgba(201, 164, 92, 0.4);
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .variation-title {
+            color: #c9a45c;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .remove-variation {
+            margin-top: 5px;
+        }
+
+        .help-text {
+            color: #aaa;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
         @media (max-width: 600px) {
             .product {
                 flex-direction: column;
@@ -234,14 +257,45 @@
         </div>
 
         <div class="form-group">
-            <label>Product Image</label>
+
+            <label>Product Images</label>
 
             <input
                 type="file"
-                id="new-product-image"
+                id="new-product-images"
                 accept="image/*"
+                multiple
             >
+
+            <p class="help-text">
+                Select multiple images for the product.
+            </p>
+
         </div>
+
+
+        <!-- VARIATIONS -->
+
+        <div class="form-group">
+
+            <label>Product Variations</label>
+
+            <div id="variation-container"></div>
+
+            <button
+                type="button"
+                id="add-variation"
+            >
+                + ADD VARIATION
+            </button>
+
+            <p class="help-text">
+                Add any options you want, such as Gold, Silver,
+                Rose Gold, Pink, Black, Small, Medium or Large.
+            </p>
+
+        </div>
+
 
         <button type="button" id="save-product">
             SAVE PRODUCT
@@ -251,25 +305,33 @@
 
     <div id="message"></div>
 
-    <div class="product-list" id="product-list"></div>
+    <div
+        class="product-list"
+        id="product-list"
+    ></div>
 
 </main>
+
 
 <script type="module">
 
 import { createClient } from
 "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
+
 const SUPABASE_URL =
 "https://jkkyovlduvxvmwyptkva.supabase.co";
+
 
 const SUPABASE_PUBLISHABLE_KEY =
 "sb_publishable_HTXhXhQFZzH6s31rkFWWPw_YcUSAKQw";
 
-const supabase = createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
-);
+
+const supabase =
+    createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+    );
 
 
 // ============================
@@ -278,13 +340,131 @@ const supabase = createClient(
 
 async function checkLogin() {
 
-    const { data: { session } } =
+    const {
+        data: { session }
+    } =
         await supabase.auth.getSession();
 
+
     if (!session) {
-        window.location.href = "admin.html";
+
+        window.location.href =
+            "admin.html";
+
     }
 }
+
+
+// ============================
+// VARIATIONS
+// ============================
+
+const variationContainer =
+    document.getElementById(
+        "variation-container"
+    );
+
+
+const addVariationButton =
+    document.getElementById(
+        "add-variation"
+    );
+
+
+addVariationButton.addEventListener(
+    "click",
+    function() {
+
+        const variationBox =
+            document.createElement("div");
+
+
+        variationBox.className =
+            "variation-box";
+
+
+        variationBox.innerHTML = `
+
+            <div class="variation-title">
+                Variation
+            </div>
+
+            <div class="form-group">
+
+                <label>Variation Name</label>
+
+                <input
+                    type="text"
+                    class="variation-name"
+                    placeholder="e.g. Gold"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>Variation Images</label>
+
+                <input
+                    type="file"
+                    class="variation-images"
+                    accept="image/*"
+                    multiple
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>Stock Status</label>
+
+                <select class="variation-stock">
+
+                    <option value="true">
+                        In Stock
+                    </option>
+
+                    <option value="false">
+                        Sold Out
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="remove-variation"
+            >
+                REMOVE VARIATION
+            </button>
+
+        `;
+
+
+        variationBox
+            .querySelector(
+                ".remove-variation"
+            )
+            .addEventListener(
+                "click",
+                function() {
+
+                    variationBox.remove();
+
+                }
+            );
+
+
+        variationContainer.appendChild(
+            variationBox
+        );
+
+    }
+);
 
 
 // ============================
@@ -293,62 +473,97 @@ async function checkLogin() {
 
 async function loadProducts() {
 
-    const { data, error } =
+    const {
+        data,
+        error
+    } =
         await supabase
             .from("products")
             .select("*")
-            .order("id", { ascending: true });
+            .order(
+                "id",
+                {
+                    ascending: true
+                }
+            );
+
 
     if (error) {
 
         console.error(error);
 
-        document.getElementById("message").textContent =
-            "Could not load products.";
+        document
+            .getElementById("message")
+            .textContent =
+                "Could not load products.";
 
         return;
     }
 
+
     const list =
-        document.getElementById("product-list");
+        document.getElementById(
+            "product-list"
+        );
+
 
     list.innerHTML = "";
+
 
     data.forEach(product => {
 
         const div =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
-        div.className = "product";
+
+        div.className =
+            "product";
+
 
         div.innerHTML = `
+
             <div class="product-info">
 
-                <h2>${product.name}</h2>
+                <h2>
+                    ${product.name}
+                </h2>
 
                 <p>
-                    ₦${Number(product.price).toLocaleString()}
+                    ₦${Number(
+                        product.price
+                    ).toLocaleString()}
                 </p>
 
             </div>
 
+
             <div>
 
-                <button onclick="editProduct('${product.id}')">
+                <button
+                    onclick="editProduct('${product.id}')"
+                >
                     EDIT
                 </button>
 
+
                 <button
                     class="delete-button"
-                    onclick="deleteProduct('${product.id}')">
+                    onclick="deleteProduct('${product.id}')"
+                >
                     DELETE
                 </button>
 
             </div>
+
         `;
 
+
         list.appendChild(div);
+
     });
+
 }
 
 
@@ -356,89 +571,119 @@ async function loadProducts() {
 // EDIT PRODUCT
 // ============================
 
-window.editProduct = async function(id) {
+window.editProduct =
+async function(id) {
 
-    const { data: product, error: fetchError } =
+    const {
+        data: product,
+        error: fetchError
+    } =
         await supabase
             .from("products")
             .select("*")
             .eq("id", id)
             .single();
 
+
     if (fetchError) {
 
         console.error(fetchError);
 
-        alert("Could not load product.");
+        alert(
+            "Could not load product."
+        );
 
         return;
     }
 
-
-    // Product name
 
     const newName =
-        prompt("Product name:", product.name);
+        prompt(
+            "Product name:",
+            product.name
+        );
 
-    if (newName === null) return;
 
+    if (newName === null)
+        return;
 
-    // Product price
 
     const newPrice =
-        prompt("Product price:", product.price);
-
-    if (newPrice === null) return;
-
-
-    // Stock status
-
-    const inStock = confirm(
-        "Is this product in stock?\n\nOK = In Stock\nCancel = Sold Out"
-    );
+        prompt(
+            "Product price:",
+            product.price
+        );
 
 
-    if (!newName.trim() || !newPrice.trim()) {
+    if (newPrice === null)
+        return;
 
-        alert("Please enter a name and price.");
+
+    const inStock =
+        confirm(
+            "Is this product in stock?\n\nOK = In Stock\nCancel = Sold Out"
+        );
+
+
+    if (
+        !newName.trim() ||
+        !newPrice.trim()
+    ) {
+
+        alert(
+            "Please enter a name and price."
+        );
 
         return;
     }
 
 
-    // Image
+    const changeImage =
+        confirm(
+            "Do you want to change the product image?\n\nOK = Choose a new image\nCancel = Keep current image"
+        );
 
-    const changeImage = confirm(
-        "Do you want to change the product image?\n\nOK = Choose a new image\nCancel = Keep current image"
-    );
 
-
-    let imageURL = product.image;
+    let imageURL =
+        product.image;
 
 
     if (changeImage) {
 
         const fileInput =
-            document.createElement("input");
+            document.createElement(
+                "input"
+            );
 
-        fileInput.type = "file";
-        fileInput.accept = "image/*";
+
+        fileInput.type =
+            "file";
+
+
+        fileInput.accept =
+            "image/*";
 
 
         const imageFile =
-            await new Promise(resolve => {
+            await new Promise(
+                resolve => {
 
-                fileInput.onchange = () => {
+                    fileInput.onchange =
+                        () => {
 
-                    resolve(
-                        fileInput.files[0] || null
-                    );
+                            resolve(
+                                fileInput
+                                    .files[0] ||
+                                null
+                            );
 
-                };
+                        };
 
-                fileInput.click();
 
-            });
+                    fileInput.click();
+
+                }
+            );
 
 
         if (imageFile) {
@@ -455,9 +700,13 @@ window.editProduct = async function(id) {
                     .substring(2)}.${fileExtension}`;
 
 
-            const { error: uploadError } =
+            const {
+                error: uploadError
+            } =
                 await supabase.storage
-                    .from("product-images")
+                    .from(
+                        "product-images"
+                    )
                     .upload(
                         fileName,
                         imageFile
@@ -466,7 +715,9 @@ window.editProduct = async function(id) {
 
             if (uploadError) {
 
-                console.error(uploadError);
+                console.error(
+                    uploadError
+                );
 
                 alert(
                     "Could not upload the new image."
@@ -476,55 +727,93 @@ window.editProduct = async function(id) {
             }
 
 
-            const { data: publicURL } =
+            const {
+                data: publicURL
+            } =
                 supabase.storage
-                    .from("product-images")
-                    .getPublicUrl(fileName);
+                    .from(
+                        "product-images"
+                    )
+                    .getPublicUrl(
+                        fileName
+                    );
 
 
             imageURL =
                 publicURL.publicUrl;
+
         }
+
     }
 
 
-    // UPDATE PRODUCT
+    const {
+        data: updatedProduct,
+        error
+    } =
+        await supabase
+            .from("products")
+            .update({
 
-  const { data: updatedProduct, error } =
-    await supabase
-        .from("products")
-        .update({
-            name: newName.trim(),
-            price: Number(newPrice),
-            image: imageURL,
-            in_stock: inStock
-        })
-        .eq("id", id)
-        .select("id, in_stock");
+                name:
+                    newName.trim(),
 
-console.log("ID being updated:", id);
-console.log("Sent to Supabase:", inStock);
-console.log("Supabase returned:", updatedProduct);
-console.log("Update error:", error);
+                price:
+                    Number(newPrice),
 
-console.log("Sent to Supabase:", inStock);
-console.log("Supabase returned:", updatedProduct);
-console.log("Update error:", error);
+                image:
+                    imageURL,
+
+                in_stock:
+                    inStock
+
+            })
+            .eq("id", id)
+            .select(
+                "id, in_stock"
+            );
+
+
+    console.log(
+        "ID being updated:",
+        id
+    );
+
+    console.log(
+        "Sent to Supabase:",
+        inStock
+    );
+
+    console.log(
+        "Supabase returned:",
+        updatedProduct
+    );
+
+    console.log(
+        "Update error:",
+        error
+    );
 
 
     if (error) {
 
         console.error(error);
 
-        alert("Could not update product.");
+        alert(
+            "Could not update product."
+        );
 
         return;
     }
 
 
-    alert("Product updated successfully!");
+    alert(
+        "Product updated successfully!"
+    );
+
 
     loadProducts();
+
 };
 
 
@@ -532,7 +821,8 @@ console.log("Update error:", error);
 // DELETE PRODUCT
 // ============================
 
-window.deleteProduct = async function(id) {
+window.deleteProduct =
+async function(id) {
 
     const confirmed =
         confirm(
@@ -540,10 +830,13 @@ window.deleteProduct = async function(id) {
         );
 
 
-    if (!confirmed) return;
+    if (!confirmed)
+        return;
 
 
-    const { error } =
+    const {
+        error
+    } =
         await supabase
             .from("products")
             .delete()
@@ -552,7 +845,9 @@ window.deleteProduct = async function(id) {
 
     if (error) {
 
-        alert("Could not delete product.");
+        alert(
+            "Could not delete product."
+        );
 
         console.error(error);
 
@@ -561,6 +856,7 @@ window.deleteProduct = async function(id) {
 
 
     loadProducts();
+
 };
 
 
@@ -569,7 +865,9 @@ window.deleteProduct = async function(id) {
 // ============================
 
 document
-    .getElementById("add-product")
+    .getElementById(
+        "add-product"
+    )
     .addEventListener(
         "click",
         function() {
@@ -580,13 +878,18 @@ document
                 );
 
 
-            if (form.style.display === "none") {
+            if (
+                form.style.display ===
+                "none"
+            ) {
 
-                form.style.display = "block";
+                form.style.display =
+                    "block";
 
             } else {
 
-                form.style.display = "none";
+                form.style.display =
+                    "none";
 
             }
 
@@ -599,7 +902,9 @@ document
 // ============================
 
 document
-    .getElementById("save-product")
+    .getElementById(
+        "save-product"
+    )
     .addEventListener(
         "click",
         async function() {
@@ -643,88 +948,140 @@ document
                     .getElementById(
                         "new-product-stock"
                     )
-                    .value === "true";
+                    .value ===
+                "true";
 
 
-            const imageFile =
-                document
-                    .getElementById(
-                        "new-product-image"
-                    )
-                    .files[0];
+            const imageFiles =
+                Array.from(
+                    document
+                        .getElementById(
+                            "new-product-images"
+                        )
+                        .files
+                );
 
 
-            if (!name || !price || !imageFile) {
+            if (
+                !name ||
+                !price ||
+                imageFiles.length === 0
+            ) {
 
                 alert(
-                    "Please enter a product name, price, and image."
+                    "Please enter a product name, price, and at least one image."
                 );
 
                 return;
             }
 
 
-            const fileExtension =
-                imageFile.name
-                    .split(".")
-                    .pop();
+            // ============================
+            // UPLOAD PRODUCT IMAGES
+            // ============================
+
+            const uploadedImageURLs =
+                [];
 
 
-            const fileName =
-                `${Date.now()}.${fileExtension}`;
+            for (
+                const imageFile
+                of imageFiles
+            ) {
+
+                const fileExtension =
+                    imageFile.name
+                        .split(".")
+                        .pop();
 
 
-            const { error: uploadError } =
-                await supabase.storage
-                    .from("product-images")
-                    .upload(
-                        fileName,
-                        imageFile
+                const fileName =
+                    `${Date.now()}-${Math.random()
+                        .toString(36)
+                        .substring(2)}.${fileExtension}`;
+
+
+                const {
+                    error: uploadError
+                } =
+                    await supabase.storage
+                        .from(
+                            "product-images"
+                        )
+                        .upload(
+                            fileName,
+                            imageFile
+                        );
+
+
+                if (uploadError) {
+
+                    console.error(
+                        uploadError
                     );
 
+                    alert(
+                        "Could not upload one of the images."
+                    );
 
-            if (uploadError) {
+                    return;
+                }
 
-                console.error(uploadError);
 
-                alert(
-                    "Could not upload the image."
+                const {
+                    data: publicURL
+                } =
+                    supabase.storage
+                        .from(
+                            "product-images"
+                        )
+                        .getPublicUrl(
+                            fileName
+                        );
+
+
+                uploadedImageURLs.push(
+                    publicURL.publicUrl
                 );
 
-                return;
             }
 
 
-            const { data: publicURL } =
-                supabase.storage
-                    .from("product-images")
-                    .getPublicUrl(fileName);
+            // ============================
+            // CREATE PRODUCT
+            // ============================
 
-
-            const imageURL =
-                publicURL.publicUrl;
-
-
-            const { error } =
+            const {
+                data: newProduct,
+                error
+            } =
                 await supabase
                     .from("products")
                     .insert([
                         {
 
-                            name: name,
+                            name:
+                                name,
 
-                            price: Number(price),
+                            price:
+                                Number(price),
 
-                            image: imageURL,
+                            image:
+                                uploadedImageURLs[0],
 
-                            description: description,
+                            description:
+                                description,
 
-                            category: category,
+                            category:
+                                category,
 
-                            in_stock: inStock
+                            in_stock:
+                                inStock
 
                         }
-                    ]);
+                    ])
+                    .select()
+                    .single();
 
 
             if (error) {
@@ -739,12 +1096,237 @@ document
             }
 
 
-            alert(
-                "Product added successfully!"
-            );
+            // ============================
+            // SAVE PRODUCT IMAGES
+            // ============================
+
+            const imageRows =
+                uploadedImageURLs.map(
+                    (
+                        url,
+                        index
+                    ) => ({
+
+                        product_id:
+                            newProduct.id,
+
+                        image_url:
+                            url,
+
+                        display_order:
+                            index
+
+                    })
+                );
 
 
-            // Clear form
+            if (
+                imageRows.length > 0
+            ) {
+
+                const {
+                    error:
+                        imagesError
+                } =
+                    await supabase
+                        .from(
+                            "product images"
+                        )
+                        .insert(
+                            imageRows
+                        );
+
+
+                if (imagesError) {
+
+                    console.error(
+                        imagesError
+                    );
+
+                    alert(
+                        "Product was created, but the images could not be saved."
+                    );
+
+                    return;
+                }
+
+            }
+
+
+            // ============================
+            // SAVE VARIATIONS
+            // ============================
+
+            const variationBoxes =
+                Array.from(
+                    document.querySelectorAll(
+                        "#variation-container > div"
+                    )
+                );
+
+
+            for (
+                const variationBox
+                of variationBoxes
+            ) {
+
+                const variationName =
+                    variationBox
+                        .querySelector(
+                            ".variation-name"
+                        )
+                        .value
+                        .trim();
+
+
+                const variationStock =
+                    variationBox
+                        .querySelector(
+                            ".variation-stock"
+                        )
+                        .value ===
+                    "true";
+
+
+                const variationFiles =
+                    Array.from(
+                        variationBox
+                            .querySelector(
+                                ".variation-images"
+                            )
+                            .files
+                    );
+
+
+                if (!variationName) {
+
+                    alert(
+                        "Please enter a name for every variation."
+                    );
+
+                    return;
+                }
+
+
+                const variationImageURLs =
+                    [];
+
+
+                for (
+                    const imageFile
+                    of variationFiles
+                ) {
+
+                    const fileExtension =
+                        imageFile.name
+                            .split(".")
+                            .pop();
+
+
+                    const fileName =
+                        `${Date.now()}-${Math.random()
+                            .toString(36)
+                            .substring(2)}.${fileExtension}`;
+
+
+                    const {
+                        error:
+                            uploadError
+                    } =
+                        await supabase.storage
+                            .from(
+                                "product-images"
+                            )
+                            .upload(
+                                fileName,
+                                imageFile
+                            );
+
+
+                    if (
+                        uploadError
+                    ) {
+
+                        console.error(
+                            uploadError
+                        );
+
+                        alert(
+                            `Could not upload images for ${variationName}.`
+                        );
+
+                        return;
+                    }
+
+
+                    const {
+                        data:
+                            publicURL
+                    } =
+                        supabase.storage
+                            .from(
+                                "product-images"
+                            )
+                            .getPublicUrl(
+                                fileName
+                            );
+
+
+                    variationImageURLs.push(
+                        publicURL.publicUrl
+                    );
+
+                }
+
+
+                const {
+                    error:
+                        variationError
+                } =
+                    await supabase
+                        .from(
+                            "product variations"
+                        )
+                        .insert([
+                            {
+
+                                product_id:
+                                    newProduct.id,
+
+                                name:
+                                    variationName,
+
+                                images:
+                                    variationImageURLs,
+
+                                in_stock:
+                                    variationStock
+
+                            }
+                        ]);
+
+
+                if (
+                    variationError
+                ) {
+
+                    console.error(
+                        variationError
+                    );
+
+                    alert(
+                        `Could not save the ${variationName} variation.`
+                    );
+
+                    return;
+                }
+
+            }
+
+
+            // ============================
+            // CLEAR FORM
+            // ============================
 
             document
                 .getElementById(
@@ -776,16 +1358,29 @@ document
 
             document
                 .getElementById(
-                    "new-product-image"
+                    "new-product-images"
                 )
                 .value = "";
 
 
             document
                 .getElementById(
+                    "variation-container"
+                )
+                .innerHTML = "";
+
+
+            document
+                .getElementById(
                     "add-product-form"
                 )
-                .style.display = "none";
+                .style.display =
+                    "none";
+
+
+            alert(
+                "Product added successfully!"
+            );
 
 
             loadProducts();
