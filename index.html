@@ -299,6 +299,167 @@
         font-size: 13px;
     }
 }
+        /* ============================
+           PRODUCT DETAILS MODAL
+        ============================ */
+
+        .product-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            overflow-y: auto;
+            padding: 30px 15px;
+        }
+
+        .product-modal-content {
+            position: relative;
+            max-width: 850px;
+            margin: 30px auto;
+            background: #111;
+            border: 1px solid #c9a45c;
+            padding: 30px;
+        }
+
+        .close-product-modal {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: transparent;
+            border: none;
+            color: #c9a45c;
+            font-size: 35px;
+            padding: 0;
+            z-index: 5;
+        }
+
+        .close-product-modal:hover {
+            background: transparent;
+            color: #f5f0e8;
+        }
+
+        .product-gallery {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-gallery img {
+            width: 100%;
+            max-height: 600px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .gallery-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 45px;
+            height: 45px;
+            padding: 0;
+            border-radius: 50%;
+            background: rgba(11, 11, 11, 0.8);
+            color: #c9a45c;
+            border: 1px solid #c9a45c;
+            font-size: 32px;
+            line-height: 1;
+            z-index: 2;
+        }
+
+        .gallery-arrow:hover {
+            background: #c9a45c;
+            color: #0b0b0b;
+        }
+
+        #previous-image {
+            left: 10px;
+        }
+
+        #next-image {
+            right: 10px;
+        }
+
+        .product-image-counter {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 25px;
+        }
+
+        .product-modal-info h2 {
+            color: #c9a45c;
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .product-modal-info .price {
+            color: #f5f0e8;
+            font-size: 22px;
+            margin: 15px 0;
+        }
+
+        .product-modal-info .description {
+            color: #aaa;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .product-variations {
+            margin: 25px 0;
+        }
+
+        .variation-label {
+            color: #c9a45c;
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        .variation-option {
+            margin-right: 8px;
+            margin-bottom: 8px;
+            background: transparent;
+            border: 1px solid #c9a45c;
+            color: #f5f0e8;
+        }
+
+        .variation-option.selected {
+            background: #c9a45c;
+            color: #0b0b0b;
+        }
+
+        #modal-add-to-cart {
+            width: 100%;
+            padding: 15px;
+            margin-top: 10px;
+            font-size: 16px;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 600px) {
+
+            .product-modal {
+                padding: 10px;
+            }
+
+            .product-modal-content {
+                margin: 10px auto;
+                padding: 20px;
+            }
+
+            .product-modal-info h2 {
+                font-size: 24px;
+            }
+
+            .product-gallery img {
+                max-height: 450px;
+            }
+
+        }
     </style>
 </head>
 
@@ -419,9 +580,10 @@
     <p class="category">
         ${product.category || ""}
     </p>
+
     <p class="stock-status ${product.in_stock ? "in-stock" : "sold-out"}">
-    ${product.in_stock ? "In Stock" : "Sold Out"}
-</p>
+        ${product.in_stock ? "In Stock" : "Sold Out"}
+    </p>
 
     <p class="description">
         ${product.description || ""}
@@ -432,11 +594,23 @@
     </p>
 
     <button
-    ${product.in_stock ? "" : "disabled"}
-    onclick="addToCart('${product.name.replace(/'/g, "\\'")}', ${product.price})">
-    ${product.in_stock ? "Add to Cart" : "Sold Out"}
-</button>
+        class="view-product-button"
+        type="button"
+    >
+        VIEW PRODUCT
+    </button>
 `;
+card.addEventListener("click", function(event) {
+
+    if (
+        event.target.closest("button")
+    ) {
+        return;
+    }
+
+    openProductDetails(product);
+
+});
             container.appendChild(card);
         });
     }
@@ -477,6 +651,541 @@ document.querySelectorAll(".category-filter").forEach(button => {
             });
     });
 });
+// ============================
+// LUMEA PRODUCT DETAILS
+// ============================
+
+let currentProduct = null;
+let currentImages = [];
+let currentImageIndex = 0;
+
+
+// ============================
+// OPEN PRODUCT DETAILS
+// ============================
+
+window.openProductDetails = async function(product) {
+
+    currentProduct = product;
+    currentImageIndex = 0;
+
+    const modal =
+        document.getElementById("product-modal");
+
+    document.getElementById(
+        "modal-product-name"
+    ).textContent = product.name;
+
+    document.getElementById(
+        "modal-product-category"
+    ).textContent = product.category || "";
+
+    document.getElementById(
+        "modal-product-price"
+    ).textContent =
+        `₦${Number(product.price).toLocaleString()}`;
+
+    document.getElementById(
+        "modal-product-description"
+    ).textContent =
+        product.description || "";
+
+    const stockElement =
+        document.getElementById("modal-product-stock");
+
+    stockElement.textContent =
+        product.in_stock
+            ? "In Stock"
+            : "Sold Out";
+
+    stockElement.className =
+        `stock-status ${
+            product.in_stock
+                ? "in-stock"
+                : "sold-out"
+        }`;
+
+
+    // ============================
+    // LOAD PRODUCT IMAGES
+    // ============================
+
+    const {
+        data: imageData,
+        error: imageError
+    } = await supabase
+        .from("product images")
+        .select("*")
+        .eq("product_id", product.id)
+        .order("display_order", {
+            ascending: true
+        });
+
+
+    if (imageError) {
+
+        console.error(
+            "Could not load product images:",
+            imageError
+        );
+
+        currentImages = [product.image];
+
+    } else {
+
+        currentImages =
+            imageData &&
+            imageData.length > 0
+                ? imageData.map(
+                    image => image.image_url
+                  )
+                : [product.image];
+
+    }
+
+
+    // ============================
+    // LOAD VARIATIONS
+    // ============================
+
+    const {
+        data: variations,
+        error: variationError
+    } = await supabase
+        .from("product variations")
+        .select("*")
+        .eq("product_id", product.id);
+
+
+    if (variationError) {
+
+        console.error(
+            "Could not load variations:",
+            variationError
+        );
+
+    }
+
+
+    const variationContainer =
+        document.getElementById(
+            "modal-product-variations"
+        );
+
+    variationContainer.innerHTML = "";
+
+
+    if (
+        variations &&
+        variations.length > 0
+    ) {
+
+        const label =
+            document.createElement("span");
+
+        label.className =
+            "variation-label";
+
+        label.textContent =
+            "Choose an option:";
+
+        variationContainer.appendChild(label);
+
+
+        variations.forEach(variation => {
+
+            const button =
+                document.createElement("button");
+
+            button.type = "button";
+
+            button.className =
+                "variation-option";
+
+            button.textContent =
+                variation.name;
+
+
+          button.addEventListener(
+    "click",
+    function() {
+
+        document
+            .querySelectorAll(
+                ".variation-option"
+            )
+            .forEach(btn => {
+
+                btn.classList.remove(
+                    "selected"
+                );
+
+            });
+
+
+        button.classList.add(
+            "selected"
+        );
+
+
+        currentImages =
+            Array.isArray(variation.images)
+                ? variation.images
+                : [];
+
+
+        if (currentImages.length === 0) {
+
+            currentImages =
+                [product.image];
+
+        }
+
+
+        currentImageIndex = 0;
+
+
+        updateProductImage();
+
+    }
+);
+
+
+            variationContainer.appendChild(
+                button
+            );
+
+        });
+
+    }
+
+
+    updateProductImage();
+
+
+    document.getElementById(
+        "modal-add-to-cart"
+    ).disabled =
+        !product.in_stock;
+
+
+    modal.style.display = "block";
+
+    document.body.style.overflow = "hidden";
+
+};
+
+
+// ============================
+// UPDATE IMAGE
+// ============================
+
+function updateProductImage() {
+
+    const image =
+        document.getElementById(
+            "modal-product-image"
+        );
+
+    const counter =
+        document.getElementById(
+            "product-image-counter"
+        );
+
+
+    if (
+        !currentImages ||
+        currentImages.length === 0
+    ) {
+
+        image.src = "";
+
+        counter.textContent = "";
+
+        return;
+
+    }
+
+
+    image.src =
+        currentImages[
+            currentImageIndex
+        ];
+
+    image.alt =
+        currentProduct.name;
+
+
+    counter.textContent =
+        `${currentImageIndex + 1} / ${currentImages.length}`;
+
+};
+
+
+// ============================
+// NEXT IMAGE
+// ============================
+
+document
+    .getElementById("next-image")
+    .addEventListener(
+        "click",
+        function() {
+
+            if (
+                currentImages.length === 0
+            ) {
+                return;
+            }
+
+
+            currentImageIndex =
+                (
+                    currentImageIndex + 1
+                ) %
+                currentImages.length;
+
+
+            updateProductImage();
+
+        }
+    );
+
+
+// ============================
+// PREVIOUS IMAGE
+// ============================
+
+document
+    .getElementById("previous-image")
+    .addEventListener(
+        "click",
+        function() {
+
+            if (
+                currentImages.length === 0
+            ) {
+                return;
+            }
+
+
+            currentImageIndex =
+                (
+                    currentImageIndex -
+                    1 +
+                    currentImages.length
+                ) %
+                currentImages.length;
+
+
+            updateProductImage();
+
+        }
+    );
+
+
+// ============================
+// CLOSE MODAL
+// ============================
+
+document
+    .getElementById("close-product-modal")
+    .addEventListener(
+        "click",
+        function() {
+
+            document.getElementById(
+                "product-modal"
+            ).style.display = "none";
+
+            document.body.style.overflow = "";
+
+        }
+    );
+
+
+// ============================
+// CLOSE OUTSIDE MODAL
+// ============================
+
+document
+    .getElementById("product-modal")
+    .addEventListener(
+        "click",
+        function(event) {
+
+            if (
+                event.target === this
+            ) {
+
+                this.style.display =
+                    "none";
+
+                document.body.style.overflow =
+                    "";
+
+            }
+
+        }
+    );
+
+
+// ============================
+// SWIPE IMAGES ON PHONE
+// ============================
+
+let touchStartX = 0;
+let touchEndX = 0;
+
+const gallery =
+    document.querySelector(
+        ".product-gallery"
+    );
+
+
+gallery.addEventListener(
+    "touchstart",
+    function(event) {
+
+        touchStartX =
+            event.changedTouches[0]
+                .screenX;
+
+    }
+);
+
+
+gallery.addEventListener(
+    "touchend",
+    function(event) {
+
+        touchEndX =
+            event.changedTouches[0]
+                .screenX;
+
+
+        const difference =
+            touchStartX -
+            touchEndX;
+
+
+        if (
+            Math.abs(difference) < 50
+        ) {
+            return;
+        }
+
+
+        if (difference > 0) {
+
+            document
+                .getElementById(
+                    "next-image"
+                )
+                .click();
+
+        } else {
+
+            document
+                .getElementById(
+                    "previous-image"
+                )
+                .click();
+
+        }
+
+    }
+);
 </script>
+<!-- PRODUCT DETAILS MODAL -->
+
+<div id="product-modal" class="product-modal">
+
+    <div class="product-modal-content">
+
+        <button
+            id="close-product-modal"
+            class="close-product-modal"
+        >
+            ×
+        </button>
+
+
+        <div class="product-gallery">
+
+            <button
+                id="previous-image"
+                class="gallery-arrow"
+            >
+                ‹
+            </button>
+
+
+            <img
+                id="modal-product-image"
+                src=""
+                alt=""
+            >
+
+
+            <button
+                id="next-image"
+                class="gallery-arrow"
+            >
+                ›
+            </button>
+
+        </div>
+
+
+        <div
+            id="product-image-counter"
+            class="product-image-counter"
+        ></div>
+
+
+        <div class="product-modal-info">
+
+            <h2 id="modal-product-name"></h2>
+
+            <p
+                id="modal-product-category"
+                class="category"
+            ></p>
+
+            <p
+                id="modal-product-price"
+                class="price"
+            ></p>
+
+            <p
+                id="modal-product-description"
+                class="description"
+            ></p>
+
+
+            <div
+                id="modal-product-variations"
+                class="product-variations"
+            ></div>
+
+
+            <p
+                id="modal-product-stock"
+                class="stock-status"
+            ></p>
+
+
+            <button
+                id="modal-add-to-cart"
+            >
+                ADD TO CART
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
 </body>
 </html>
